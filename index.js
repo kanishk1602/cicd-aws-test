@@ -2,8 +2,8 @@ const express = require("express");
 const path = require("path");
 const app = express();
 
-// Serve static files from the current directory
-app.use(express.static(__dirname));
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get("/", (req,res)=>{
     res.send("CI/CD Working - Change 2.0");
