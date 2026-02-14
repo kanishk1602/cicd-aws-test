@@ -2,32 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>PDF Document Navigator</title>
+  <title>PDF Document Viewer</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body { 
       font-family: Arial, sans-serif; 
       text-align: center; 
-      margin: 0; 
-      padding: 20px;
       background: #1a1a2e;
       color: #fff;
       min-height: 100vh;
+      padding: 15px;
     }
     h2 { margin-bottom: 10px; }
-    .info-box {
-      background: #16213e;
-      padding: 20px;
-      border-radius: 10px;
-      margin: 20px auto;
-      max-width: 600px;
-    }
     .controls {
-      margin: 20px 0;
+      margin: 15px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     button { 
-      margin: 10px; 
-      padding: 15px 30px; 
-      font-size: 18px; 
+      padding: 12px 25px; 
+      font-size: 16px; 
       cursor: pointer;
       background: #4CAF50;
       color: white;
@@ -43,141 +44,121 @@
     #prevBtn:hover {
       background: #1976D2;
     }
-    #openBtn {
-      background: #FF5722;
-      padding: 20px 40px;
-      font-size: 22px;
-    }
-    #openBtn:hover {
-      background: #E64A19;
+    #nextBtn {
+      background: #4CAF50;
     }
     .current-info {
-      font-size: 28px;
-      margin: 20px 0;
-      padding: 20px;
+      font-size: 22px;
+      padding: 10px 20px;
       background: #0f3460;
       border-radius: 8px;
       display: inline-block;
     }
     input {
-      padding: 12px;
-      font-size: 20px;
-      width: 150px;
+      padding: 10px;
+      font-size: 16px;
+      width: 120px;
       text-align: center;
       border-radius: 5px;
       border: none;
     }
-    .url-display {
-      background: #0a1628;
-      padding: 15px;
+    #pdfFrame {
+      width: 95vw;
+      height: 75vh;
+      border: 2px solid #4CAF50;
       border-radius: 8px;
-      margin: 20px auto;
-      max-width: 800px;
-      word-break: break-all;
-      font-family: monospace;
-      font-size: 14px;
-      color: #4CAF50;
+      margin-top: 15px;
+      background: #fff;
     }
-    .note {
+    .loading {
       color: #ffc107;
-      font-size: 14px;
-      margin-top: 20px;
+      font-size: 18px;
+      margin: 10px 0;
     }
-    .counter {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      margin: 20px 0;
-    }
-    .count-btn {
-      width: 60px;
-      height: 60px;
-      font-size: 30px;
-      padding: 0;
-      border-radius: 50%;
-    }
-    #currentNumDisplay {
-      font-size: 36px;
-      min-width: 200px;
+    .error {
+      color: #f44336;
+      font-size: 16px;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <h2>📄 Epstein Files Document Navigator</h2>
-  
-  <div class="info-box">
-    <p>⚠️ The justice.gov website requires age verification and blocks embedding.</p>
-    <p>Use this tool to navigate document numbers and open them in a new tab.</p>
-  </div>
+  <h2>📄 Epstein Files Document Viewer</h2>
 
-  <div class="current-info">
-    Document: EFTA<span id="currentNumDisplay">00003161</span>.pdf
-  </div>
-
-  <div class="counter">
-    <button class="count-btn" id="prevBtn">−</button>
-    <button id="openBtn">📂 Open PDF in New Tab</button>
-    <button class="count-btn" id="nextBtn">+</button>
+  <div class="controls">
+    <button id="prevBtn">⬅️ Previous</button>
+    
+    <div class="current-info">
+      EFTA<span id="currentNumDisplay">00003161</span>.pdf
+    </div>
+    
+    <button id="nextBtn">Next ➡️</button>
   </div>
   
   <div class="controls">
-    <label>Jump to number: </label>
+    <label>Jump to: </label>
     <input type="number" id="jumpInput" value="3161" min="1">
     <button id="jumpBtn">Go</button>
   </div>
 
-  <div class="url-display" id="urlDisplay">
-    https://www.justice.gov/epstein/files/DataSet%202/EFTA00003161.pdf
-  </div>
+  <div id="status" class="loading"></div>
 
-  <p class="note">💡 Tip: After verifying age once in the new tab, you can navigate through documents more easily.</p>
+  <iframe id="pdfFrame" src="/proxy/pdf/3161"></iframe>
 
   <script>
-    const baseUrl = "https://www.justice.gov/epstein/files/DataSet%202/EFTA";
     let currentNum = 3161;
     
     const currentNumDisplay = document.getElementById('currentNumDisplay');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const openBtn = document.getElementById('openBtn');
     const jumpInput = document.getElementById('jumpInput');
     const jumpBtn = document.getElementById('jumpBtn');
-    const urlDisplay = document.getElementById('urlDisplay');
-
-    function getUrl() {
-      return `${baseUrl}${String(currentNum).padStart(8, '0')}.pdf`;
-    }
+    const pdfFrame = document.getElementById('pdfFrame');
+    const status = document.getElementById('status');
 
     function updateDisplay() {
       currentNumDisplay.textContent = String(currentNum).padStart(8, '0');
       jumpInput.value = currentNum;
-      urlDisplay.textContent = getUrl();
     }
 
-    function openPdf() {
-      window.open(getUrl(), '_blank');
+    function loadPdf() {
+      status.textContent = '⏳ Loading PDF...';
+      status.className = 'loading';
+      
+      const proxyUrl = `/proxy/pdf/${currentNum}`;
+      pdfFrame.src = proxyUrl;
+      
+      pdfFrame.onload = function() {
+        status.textContent = '✅ PDF loaded successfully';
+        setTimeout(() => { status.textContent = ''; }, 2000);
+      };
+      
+      pdfFrame.onerror = function() {
+        status.textContent = '❌ Error loading PDF';
+        status.className = 'error';
+      };
     }
 
     prevBtn.onclick = function() {
       if (currentNum > 1) {
         currentNum--;
         updateDisplay();
+        loadPdf();
       }
     };
 
     nextBtn.onclick = function() {
       currentNum++;
       updateDisplay();
+      loadPdf();
     };
-
-    openBtn.onclick = openPdf;
 
     jumpBtn.onclick = function() {
       const val = parseInt(jumpInput.value);
       if (val > 0) {
         currentNum = val;
         updateDisplay();
+        loadPdf();
       }
     };
 
@@ -187,15 +168,13 @@
       }
     });
 
-    // Allow keyboard navigation
+    // Keyboard navigation
     document.addEventListener('keydown', function(e) {
       if (e.target.tagName === 'INPUT') return;
       if (e.key === 'ArrowLeft') {
         prevBtn.click();
       } else if (e.key === 'ArrowRight') {
         nextBtn.click();
-      } else if (e.key === 'Enter' || e.key === ' ') {
-        openPdf();
       }
     });
   </script>
