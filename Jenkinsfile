@@ -47,9 +47,8 @@ pipeline {
             steps {
                 echo '🚀 Deploying application to EC2...'
                 sh '''
-                    # Copy source code files and public folder
+                    # Copy only source code files (skip node_modules)
                     scp -i /var/lib/jenkins/MyKey.pem -o StrictHostKeyChecking=no index.js package.json ec2-user@16.171.70.101:/home/ec2-user/kanishk/
-                    scp -i /var/lib/jenkins/MyKey.pem -o StrictHostKeyChecking=no -r public ec2-user@16.171.70.101:/home/ec2-user/kanishk/
                     
                     # SSH into EC2 and restart the application
                     ssh -i /var/lib/jenkins/MyKey.pem -o StrictHostKeyChecking=no ec2-user@16.171.70.101 << 'EOF'
