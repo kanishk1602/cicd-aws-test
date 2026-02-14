@@ -2,42 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>PDF Document Viewer</title>
+  <title>PDF Document Navigator</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body { 
       font-family: Arial, sans-serif; 
       text-align: center; 
+      margin: 0; 
+      padding: 20px;
       background: #1a1a2e;
       color: #fff;
       min-height: 100vh;
-      padding: 15px;
     }
     h2 { margin-bottom: 10px; }
-    .info-box {
-      background: #16213e;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 15px auto;
-      max-width: 700px;
-      font-size: 14px;
-    }
-    .info-box p { margin: 5px 0; }
     .controls {
-      margin: 15px 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
+      margin: 20px 0;
     }
     button { 
-      padding: 15px 30px; 
-      font-size: 18px; 
+      padding: 12px 25px; 
+      font-size: 16px; 
       cursor: pointer;
       background: #4CAF50;
       color: white;
@@ -63,78 +45,56 @@
       background: #E64A19;
     }
     .current-info {
-      font-size: 26px;
-      padding: 15px 25px;
+      font-size: 22px;
+      padding: 10px 20px;
       background: #0f3460;
       border-radius: 8px;
       display: inline-block;
       margin: 10px 0;
     }
     input {
-      padding: 12px;
-      font-size: 18px;
-      width: 140px;
+      padding: 10px;
+      font-size: 16px;
+      width: 120px;
       text-align: center;
       border-radius: 5px;
       border: none;
     }
-    .url-display {
-      background: #0a1628;
-      padding: 12px;
+    #pdfFrame {
+      width: 95vw;
+      height: 75vh;
+      border: 2px solid #4CAF50;
       border-radius: 8px;
-      margin: 15px auto;
-      max-width: 800px;
-      word-break: break-all;
-      font-family: monospace;
-      font-size: 12px;
-      color: #4CAF50;
-    }
-    .tip {
-      color: #ffc107;
-      font-size: 13px;
       margin-top: 15px;
+      background: #fff;
     }
-    .keyboard-hint {
-      color: #888;
-      font-size: 12px;
-      margin-top: 10px;
+    .loading {
+      color: #ffc107;
+      font-size: 18px;
+      margin: 10px 0;
     }
-    .counter-display {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 15px;
-      margin: 20px 0;
-    }
-    .nav-btn {
-      width: 60px;
-      height: 60px;
-      font-size: 28px;
-      padding: 0;
-      border-radius: 50%;
+    .error {
+      color: #f44336;
+      font-size: 16px;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <h2>📄 Epstein Files Document Navigator</h2>
+  <h2>📄 Epstein Files Document Viewer</h2>
 
-  <div class="info-box">
-    <p>⚠️ The justice.gov website requires age verification that cannot be bypassed.</p>
-    <p>Use this navigator to track document numbers and open them in a new tab.</p>
-  </div>
-
-  <div class="current-info">
-    EFTA<span id="currentNumDisplay">00003161</span>.pdf
-  </div>
-
-  <div class="counter-display">
-    <button class="nav-btn" id="prevBtn">◀</button>
-    <button id="openBtn">📂 Open PDF</button>
-    <button class="nav-btn" id="nextBtn">▶</button>
+  <div class="controls">
+    <button id="prevBtn">⬅️ Previous</button>
+    
+    <div class="current-info">
+      EFTA<span id="currentNumDisplay">00003161</span>.pdf
+    </div>
+    
+    <button id="nextBtn">Next ➡️</button>
   </div>
   
   <div class="controls">
-    <label>Jump to: </label>
+    <label>Jump to number: </label>
     <input type="number" id="jumpInput" value="3161" min="1">
     <button id="jumpBtn">Go</button>
   </div>
@@ -143,10 +103,10 @@
     https://www.justice.gov/epstein/files/DataSet%202/EFTA00003161.pdf
   </div>
 
-  <p class="tip">💡 Tip: After verifying age once in a tab, subsequent PDFs load faster in that tab.</p>
-  <p class="keyboard-hint">⌨️ Keyboard: ← → to navigate, Enter/Space to open PDF</p>
+  <iframe id="pdfFrame" src="/proxy/pdf/3161"></iframe>
 
   <script>
+    const baseUrl = "https://www.justice.gov/epstein/files/DataSet%202/EFTA";
     let currentNum = 3161;
     const baseUrl = "https://www.justice.gov/epstein/files/DataSet%202/EFTA";
     
@@ -200,16 +160,13 @@
       }
     });
 
-    // Keyboard navigation
+    // Allow keyboard navigation
     document.addEventListener('keydown', function(e) {
       if (e.target.tagName === 'INPUT') return;
       if (e.key === 'ArrowLeft') {
         prevBtn.click();
       } else if (e.key === 'ArrowRight') {
         nextBtn.click();
-      } else if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openPdf();
       }
     });
   </script>

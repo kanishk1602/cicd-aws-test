@@ -54,7 +54,6 @@ pipeline {
                     # SSH into EC2 and restart the application
                     ssh -i /var/lib/jenkins/MyKey.pem -o StrictHostKeyChecking=no ec2-user@16.171.70.101 << 'EOF'
                     cd /home/ec2-user/kanishk/
-                    npm install
                     if pgrep -f "node index.js" > /dev/null; then
                         pkill -f "node index.js"
                     fi
