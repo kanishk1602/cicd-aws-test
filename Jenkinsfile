@@ -45,13 +45,12 @@ pipeline {
             steps {
                 echo '🚀 Deploying application to EC2...'
                 sh '''
-                    # Copy code to EC2 instance
-                    scp -i /Users/kanishk/Desktop/MyKey.pem -r -o StrictHostKeyChecking=no * ec2-user@16.171.70.101:/home/ec2-user/kanishk/
+                    # Copy only source code files (skip node_modules)
+                    scp -i /Users/kanishk/Desktop/MyKey.pem -o StrictHostKeyChecking=no index.js package.json ec2-user@16.171.70.101:/home/ec2-user/kanishk/
                     
                     # SSH into EC2 and restart the application
                     ssh -i /Users/kanishk/Desktop/MyKey.pem -o StrictHostKeyChecking=no ec2-user@16.171.70.101 << 'EOF'
                     cd /home/ec2-user/kanishk/
-                    npm install
                     if pgrep -f "node index.js" > /dev/null; then
                         pkill -f "node index.js"
                     fi
