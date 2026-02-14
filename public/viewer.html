@@ -18,6 +18,15 @@
       padding: 15px;
     }
     h2 { margin-bottom: 10px; }
+    .info-box {
+      background: #16213e;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px auto;
+      max-width: 700px;
+      font-size: 14px;
+    }
+    .info-box p { margin: 5px 0; }
     .controls {
       margin: 15px 0;
       display: flex;
@@ -27,8 +36,8 @@
       gap: 10px;
     }
     button { 
-      padding: 12px 25px; 
-      font-size: 16px; 
+      padding: 15px 30px; 
+      font-size: 18px; 
       cursor: pointer;
       background: #4CAF50;
       color: white;
@@ -37,6 +46,7 @@
     }
     button:hover {
       background: #45a049;
+      transform: scale(1.02);
     }
     #prevBtn {
       background: #2196F3;
@@ -44,55 +54,83 @@
     #prevBtn:hover {
       background: #1976D2;
     }
-    #nextBtn {
-      background: #4CAF50;
+    #openBtn {
+      background: #FF5722;
+      padding: 20px 40px;
+      font-size: 22px;
+    }
+    #openBtn:hover {
+      background: #E64A19;
     }
     .current-info {
-      font-size: 22px;
-      padding: 10px 20px;
+      font-size: 26px;
+      padding: 15px 25px;
       background: #0f3460;
       border-radius: 8px;
       display: inline-block;
+      margin: 10px 0;
     }
     input {
-      padding: 10px;
-      font-size: 16px;
-      width: 120px;
+      padding: 12px;
+      font-size: 18px;
+      width: 140px;
       text-align: center;
       border-radius: 5px;
       border: none;
     }
-    #pdfFrame {
-      width: 95vw;
-      height: 75vh;
-      border: 2px solid #4CAF50;
+    .url-display {
+      background: #0a1628;
+      padding: 12px;
       border-radius: 8px;
-      margin-top: 15px;
-      background: #fff;
+      margin: 15px auto;
+      max-width: 800px;
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 12px;
+      color: #4CAF50;
     }
-    .loading {
+    .tip {
       color: #ffc107;
-      font-size: 18px;
-      margin: 10px 0;
+      font-size: 13px;
+      margin-top: 15px;
     }
-    .error {
-      color: #f44336;
-      font-size: 16px;
-      margin: 10px 0;
+    .keyboard-hint {
+      color: #888;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .counter-display {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .nav-btn {
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+      padding: 0;
+      border-radius: 50%;
     }
   </style>
 </head>
 <body>
-  <h2>📄 Epstein Files Document Viewer</h2>
+  <h2>📄 Epstein Files Document Navigator</h2>
 
-  <div class="controls">
-    <button id="prevBtn">⬅️ Previous</button>
-    
-    <div class="current-info">
-      EFTA<span id="currentNumDisplay">00003161</span>.pdf
-    </div>
-    
-    <button id="nextBtn">Next ➡️</button>
+  <div class="info-box">
+    <p>⚠️ The justice.gov website requires age verification that cannot be bypassed.</p>
+    <p>Use this navigator to track document numbers and open them in a new tab.</p>
+  </div>
+
+  <div class="current-info">
+    EFTA<span id="currentNumDisplay">00003161</span>.pdf
+  </div>
+
+  <div class="counter-display">
+    <button class="nav-btn" id="prevBtn">◀</button>
+    <button id="openBtn">📂 Open PDF</button>
+    <button class="nav-btn" id="nextBtn">▶</button>
   </div>
   
   <div class="controls">
@@ -101,13 +139,12 @@
     <button id="jumpBtn">Go</button>
   </div>
 
-  <div id="status" class="loading"></div>
-
-  <iframe id="pdfFrame" src="/proxy/pdf/3161"></iframe>
-
-  <div class="controls">
-    <button id="openNewTab" style="background: #FF5722;">📂 Open in New Tab (if embed fails)</button>
+  <div class="url-display" id="urlDisplay">
+    https://www.justice.gov/epstein/files/DataSet%202/EFTA00003161.pdf
   </div>
+
+  <p class="tip">💡 Tip: After verifying age once in a tab, subsequent PDFs load faster in that tab.</p>
+  <p class="keyboard-hint">⌨️ Keyboard: ← → to navigate, Enter/Space to open PDF</p>
 
   <script>
     let currentNum = 3161;
@@ -116,63 +153,44 @@
     const currentNumDisplay = document.getElementById('currentNumDisplay');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
+    const openBtn = document.getElementById('openBtn');
     const jumpInput = document.getElementById('jumpInput');
     const jumpBtn = document.getElementById('jumpBtn');
-    const pdfFrame = document.getElementById('pdfFrame');
-    const status = document.getElementById('status');
-    const openNewTab = document.getElementById('openNewTab');
+    const urlDisplay = document.getElementById('urlDisplay');
+
+    function getUrl() {
+      return `${baseUrl}${String(currentNum).padStart(8, '0')}.pdf`;
+    }
 
     function updateDisplay() {
       currentNumDisplay.textContent = String(currentNum).padStart(8, '0');
       jumpInput.value = currentNum;
+      urlDisplay.textContent = getUrl();
     }
 
-    function getDirectUrl() {
-      return `${baseUrl}${String(currentNum).padStart(8, '0')}.pdf`;
+    function openPdf() {
+      window.open(getUrl(), '_blank');
     }
-
-    function loadPdf() {
-      status.textContent = '⏳ Loading PDF...';
-      status.className = 'loading';
-      
-      const proxyUrl = `/proxy/pdf/${currentNum}`;
-      pdfFrame.src = proxyUrl;
-      
-      pdfFrame.onload = function() {
-        status.textContent = '✅ PDF loaded successfully';
-        setTimeout(() => { status.textContent = ''; }, 2000);
-      };
-      
-      pdfFrame.onerror = function() {
-        status.textContent = '❌ Error loading PDF - Try "Open in New Tab"';
-        status.className = 'error';
-      };
-    }
-
-    openNewTab.onclick = function() {
-      window.open(getDirectUrl(), '_blank');
-    };
 
     prevBtn.onclick = function() {
       if (currentNum > 1) {
         currentNum--;
         updateDisplay();
-        loadPdf();
       }
     };
 
     nextBtn.onclick = function() {
       currentNum++;
       updateDisplay();
-      loadPdf();
     };
+
+    openBtn.onclick = openPdf;
 
     jumpBtn.onclick = function() {
       const val = parseInt(jumpInput.value);
       if (val > 0) {
         currentNum = val;
         updateDisplay();
-        loadPdf();
       }
     };
 
@@ -189,8 +207,13 @@
         prevBtn.click();
       } else if (e.key === 'ArrowRight') {
         nextBtn.click();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openPdf();
       }
     });
   </script>
+</body>
+</html>
 </body>
 </html>
