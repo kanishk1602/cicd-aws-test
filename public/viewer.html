@@ -4,28 +4,131 @@
   <meta charset="UTF-8">
   <title>PDF Photo Viewer</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; }
-    #pdfFrame { width: 80vw; height: 80vh; border: 1px solid #ccc; margin-top: 20px; }
-    button { margin: 20px; padding: 10px 20px; font-size: 16px; }
+    body { 
+      font-family: Arial, sans-serif; 
+      text-align: center; 
+      margin: 0; 
+      padding: 20px;
+      background: #1a1a2e;
+      color: #fff;
+    }
+    h2 { margin-bottom: 20px; }
+    .controls {
+      margin: 20px 0;
+    }
+    button { 
+      margin: 10px; 
+      padding: 15px 30px; 
+      font-size: 18px; 
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    #prevBtn {
+      background: #2196F3;
+    }
+    #prevBtn:hover {
+      background: #1976D2;
+    }
+    #openBtn {
+      background: #FF9800;
+    }
+    #openBtn:hover {
+      background: #F57C00;
+    }
+    .current-info {
+      font-size: 24px;
+      margin: 20px 0;
+      padding: 15px;
+      background: #16213e;
+      border-radius: 8px;
+      display: inline-block;
+    }
+    input {
+      padding: 10px;
+      font-size: 18px;
+      width: 150px;
+      text-align: center;
+      border-radius: 5px;
+      border: none;
+    }
   </style>
 </head>
 <body>
-  <h2>PDF Photo Viewer</h2>
-  <button id="nextBtn">Next</button>
-  <br>
-  <iframe id="pdfFrame" src="https://www.justice.gov/epstein/files/DataSet%202/EFTA00003161.pdf"></iframe>
+  <h2>📄 PDF Document Viewer</h2>
+  
+  <div class="current-info">
+    Current Document: EFTA<span id="currentNum">00003161</span>.pdf
+  </div>
+  
+  <div class="controls">
+    <button id="prevBtn">⬅️ Previous</button>
+    <button id="openBtn">📂 Open PDF</button>
+    <button id="nextBtn">Next ➡️</button>
+  </div>
+  
+  <div class="controls">
+    <label>Jump to number: </label>
+    <input type="number" id="jumpInput" value="3161" min="1">
+    <button id="jumpBtn">Go</button>
+  </div>
 
   <script>
     const baseUrl = "https://www.justice.gov/epstein/files/DataSet%202/EFTA";
     let currentNum = 3161;
-    const pdfFrame = document.getElementById('pdfFrame');
+    
+    const currentNumSpan = document.getElementById('currentNum');
+    const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
+    const openBtn = document.getElementById('openBtn');
+    const jumpInput = document.getElementById('jumpInput');
+    const jumpBtn = document.getElementById('jumpBtn');
+
+    function updateDisplay() {
+      currentNumSpan.textContent = String(currentNum).padStart(8, '0');
+      jumpInput.value = currentNum;
+    }
+
+    function openPdf() {
+      const url = `${baseUrl}${String(currentNum).padStart(8, '0')}.pdf`;
+      window.open(url, '_blank');
+    }
+
+    prevBtn.onclick = function() {
+      if (currentNum > 1) {
+        currentNum--;
+        updateDisplay();
+        openPdf();
+      }
+    };
 
     nextBtn.onclick = function() {
       currentNum++;
-      const newUrl = `${baseUrl}${String(currentNum).padStart(8, '0')}.pdf`;
-      pdfFrame.src = newUrl;
+      updateDisplay();
+      openPdf();
     };
+
+    openBtn.onclick = openPdf;
+
+    jumpBtn.onclick = function() {
+      const val = parseInt(jumpInput.value);
+      if (val > 0) {
+        currentNum = val;
+        updateDisplay();
+        openPdf();
+      }
+    };
+
+    jumpInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        jumpBtn.click();
+      }
+    });
   </script>
 </body>
 </html>
