@@ -4,16 +4,14 @@ pipeline {
     // Trigger the pipeline on GitHub push via webhook
     triggers {
         githubPush()
+        // Fallback: Poll GitHub every 5 minutes if webhook fails
+        pollSCM('H/5 * * * *')
     }
 
     // Define environment variables
     environment {
         NODE_ENV = 'production'
         PORT = '3000'
-    }
-
-    tools {
-        nodejs 'Node18'  // Make sure this is configured in Jenkins
     }
 
     stages {
