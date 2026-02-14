@@ -105,8 +105,13 @@
 
   <iframe id="pdfFrame" src="/proxy/pdf/3161"></iframe>
 
+  <div class="controls">
+    <button id="openNewTab" style="background: #FF5722;">📂 Open in New Tab (if embed fails)</button>
+  </div>
+
   <script>
     let currentNum = 3161;
+    const baseUrl = "https://www.justice.gov/epstein/files/DataSet%202/EFTA";
     
     const currentNumDisplay = document.getElementById('currentNumDisplay');
     const prevBtn = document.getElementById('prevBtn');
@@ -115,10 +120,15 @@
     const jumpBtn = document.getElementById('jumpBtn');
     const pdfFrame = document.getElementById('pdfFrame');
     const status = document.getElementById('status');
+    const openNewTab = document.getElementById('openNewTab');
 
     function updateDisplay() {
       currentNumDisplay.textContent = String(currentNum).padStart(8, '0');
       jumpInput.value = currentNum;
+    }
+
+    function getDirectUrl() {
+      return `${baseUrl}${String(currentNum).padStart(8, '0')}.pdf`;
     }
 
     function loadPdf() {
@@ -134,10 +144,14 @@
       };
       
       pdfFrame.onerror = function() {
-        status.textContent = '❌ Error loading PDF';
+        status.textContent = '❌ Error loading PDF - Try "Open in New Tab"';
         status.className = 'error';
       };
     }
+
+    openNewTab.onclick = function() {
+      window.open(getDirectUrl(), '_blank');
+    };
 
     prevBtn.onclick = function() {
       if (currentNum > 1) {
