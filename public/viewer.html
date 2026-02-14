@@ -35,12 +35,6 @@
     #prevBtn:hover {
       background: #1976D2;
     }
-    #openBtn {
-      background: #FF9800;
-    }
-    #openBtn:hover {
-      background: #F57C00;
-    }
     .current-info {
       font-size: 24px;
       margin: 20px 0;
@@ -57,6 +51,14 @@
       border-radius: 5px;
       border: none;
     }
+    #pdfFrame {
+      width: 90vw;
+      height: 80vh;
+      border: 2px solid #4CAF50;
+      border-radius: 8px;
+      margin-top: 20px;
+      background: #fff;
+    }
   </style>
 </head>
 <body>
@@ -68,7 +70,6 @@
   
   <div class="controls">
     <button id="prevBtn">⬅️ Previous</button>
-    <button id="openBtn">📂 Open PDF</button>
     <button id="nextBtn">Next ➡️</button>
   </div>
   
@@ -78,6 +79,8 @@
     <button id="jumpBtn">Go</button>
   </div>
 
+  <iframe id="pdfFrame" src="https://docs.google.com/gview?url=https://www.justice.gov/epstein/files/DataSet%202/EFTA00003161.pdf&embedded=true"></iframe>
+
   <script>
     const baseUrl = "https://www.justice.gov/epstein/files/DataSet%202/EFTA";
     let currentNum = 3161;
@@ -85,42 +88,41 @@
     const currentNumSpan = document.getElementById('currentNum');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const openBtn = document.getElementById('openBtn');
     const jumpInput = document.getElementById('jumpInput');
     const jumpBtn = document.getElementById('jumpBtn');
+    const pdfFrame = document.getElementById('pdfFrame');
 
     function updateDisplay() {
       currentNumSpan.textContent = String(currentNum).padStart(8, '0');
       jumpInput.value = currentNum;
     }
 
-    function openPdf() {
-      const url = `${baseUrl}${String(currentNum).padStart(8, '0')}.pdf`;
-      window.open(url, '_blank');
+    function loadPdf() {
+      const pdfUrl = `${baseUrl}${String(currentNum).padStart(8, '0')}.pdf`;
+      const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+      pdfFrame.src = viewerUrl;
     }
 
     prevBtn.onclick = function() {
       if (currentNum > 1) {
         currentNum--;
         updateDisplay();
-        openPdf();
+        loadPdf();
       }
     };
 
     nextBtn.onclick = function() {
       currentNum++;
       updateDisplay();
-      openPdf();
+      loadPdf();
     };
-
-    openBtn.onclick = openPdf;
 
     jumpBtn.onclick = function() {
       const val = parseInt(jumpInput.value);
       if (val > 0) {
         currentNum = val;
         updateDisplay();
-        openPdf();
+        loadPdf();
       }
     };
 
